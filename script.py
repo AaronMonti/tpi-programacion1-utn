@@ -4,13 +4,13 @@ import os
 # HELPERS
 
 def imprimir_exito(mensaje):
-    print(f"\n✔ {mensaje}")
+    print(f"✔ {mensaje}\n")
  
 def imprimir_error(mensaje):
-    print(f"\n❌ {mensaje}")
+    print(f"❌ {mensaje}\n")
  
 def imprimir_aviso(mensaje):
-    print(f"\n❕ {mensaje}")
+    print(f"❕ {mensaje}\n")
 
 def pedir_texto(mensaje, campo="campo"):
     """Pide un texto no vacío al usuario."""
@@ -18,7 +18,7 @@ def pedir_texto(mensaje, campo="campo"):
         valor = input(mensaje).strip()
         if valor:
             return valor
-        imprimir_error(f"El {campo} no puede estar vacío.")
+        imprimir_error(f"{campo.title()} no puede estar vacío.")
  
 def pedir_entero_positivo(mensaje, campo="valor"):
     """Pide un entero positivo al usuario."""
@@ -26,11 +26,11 @@ def pedir_entero_positivo(mensaje, campo="valor"):
         try:
             valor = int(input(mensaje))
             if valor < 0:
-                imprimir_error(f"El {campo} debe ser un número positivo.")
+                imprimir_error(f"{campo.title()} debe ser un número positivo.")
                 continue
             return valor
         except ValueError:
-            imprimir_error(f"El {campo} debe ser un número entero.")
+            imprimir_error(f"{campo.title()} debe ser un número entero.")
 
 def pedir_rango(campo):
     """Pide un rango mínimo/máximo válido. Devuelve (min, max)."""
@@ -158,22 +158,22 @@ def buscar_pais(datos):
         print("Superficie:", pais_unico["superficie"])
 
 def filtrar_continente(datos):
-    continentes = []
+    set_continentes = set()
     for pais in datos:
-        continentes.add(pais["continente"])
-    set_continentes = list(set(continentes))
+        set_continentes.add(pais["continente"])
+    continentes = list(set_continentes)
 
     while True:
         print("\n--- CONTINENTES DISPONIBLES ---")
         
-        for i, nombre in enumerate(set_continentes, start=1):
+        for i, nombre in enumerate(continentes, start=1):
             print(f"{i}. {nombre}")
         
         while True:
             try:
                 opcion = int(input("Elegí una opción: "))
-                if 1 <= opcion <= len(set_continentes):
-                    continente_elegido = set_continentes[opcion - 1]
+                if 1 <= opcion <= len(continentes):
+                    continente_elegido = continentes[opcion - 1]
                     break
                 imprimir_error(f"Opcion fuera de rango. Ingrese un número entre 1 y {len(continentes)}")
             except ValueError:

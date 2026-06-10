@@ -1,7 +1,52 @@
 import csv
 import os
 
+# HELPERS
+
+def imprimir_exito(mensaje):
+    print(f"\n✔ {mensaje}")
+ 
+def imprimir_error(mensaje):
+    print(f"\n❌ {mensaje}")
+ 
+def imprimir_aviso(mensaje):
+    print(f"\n❕ {mensaje}")
+
+def pedir_texto(mensaje, campo="campo"):
+    """Pide un texto no vacío al usuario."""
+    while True:
+        valor = input(mensaje).strip()
+        if valor:
+            return valor
+        imprimir_error(f"El {campo} no puede estar vacío.")
+ 
+def pedir_entero_positivo(mensaje, campo="valor"):
+    """Pide un entero positivo al usuario."""
+    while True:
+        try:
+            valor = int(input(mensaje))
+            if valor < 0:
+                imprimir_error(f"El {campo} debe ser un número positivo.")
+                continue
+            return valor
+        except ValueError:
+            imprimir_error(f"El {campo} debe ser un número entero.")
+
+def pedir_rango(campo):
+    """Pide un rango mínimo/máximo válido. Devuelve (min, max)."""
+    while True:
+        minimo = pedir_entero_positivo(f"  Ingrese el mínimo de {campo}: ", campo)
+        maximo = pedir_entero_positivo(f"  Ingrese el máximo de {campo}: ", campo)
+        if minimo > maximo:
+            imprimir_error("El mínimo no puede ser mayor que el máximo.")
+            continue
+        return minimo, maximo
+
+# DATOS
+
 def leer_datos():
+    """Lee el CSV y devuelve una lista de diccionarios."""
+
     lista = []
     ruta = "datos/paises_datos.csv"
     
@@ -15,6 +60,12 @@ def leer_datos():
     return lista
 
 def escribir_datos(datos, actualizar=False):
+    """
+    Escribe datos en el CSV.
+    - actualizar=True  → sobreescribe todo el archivo (usado al actualizar un país).
+    - actualizar=False → agrega una fila al final (usado al agregar un país).
+    """
+
     columnas = ["nombre", "poblacion", "superficie", "continente"]
     modo_escritura = "w" if actualizar else "a"
     ruta = "datos/paises_datos.csv"
@@ -34,67 +85,59 @@ def escribir_datos(datos, actualizar=False):
         else:
             escritor_dict.writerow(datos)
 
+# FUNCIONALIDADES
+
 def agregar_pais(datos):
-    while True:
-        try:
-            nombre_pais = input("Ingrese el nombre del país: ").strip()
-            if not nombre_pais:
-                print("Error: El nombre del país no puede estar vacío.")
-                continue
-            poblacion = int(input("Ingrese la población: "))
-            superficie = int(input("Ingrese la superficie: "))
-            continente = input("Ingrese el continente: ").strip()
-            if not continente:
-                print("Error: El continente no puede estar vacío.")
-                continue
-            break
-        except ValueError:
-            print("Error: La población y la superficie deben ser números enteros.")    
-            
-    nuevo_pais = {"nombre": nombre_pais, "poblacion": str(poblacion), "superficie": str(superficie), "continente": continente}
+    nombre_pais = pedir_texto("Ingrese el nombre del país: ", "nombre")
+    
+    if any(p["nombre"].lower() == nombre_pais.lower() for p in datos):
+        imprimir_error(f"Ya existe un país con el nombre '{nombre_pais}'.")
+        return
+    poblacion = pedir_entero_positivo("Ingrese la población: ", "poblacion")
+    superficie = pedir_entero_positivo("Ingrese la superficie: ", "superficie")
+    continente = pedir_texto("Ingrese el continente: ", "continente")
+    nuevo_pais = {
+        "nombre": nombre_pais,
+        "poblacion": str(poblacion),
+        "superficie": str(superficie),
+        "continente": continente
+    }
     
     datos.append(nuevo_pais)
-    escribir_datos(nuevo_pais, False)
-    print(f"¡{nombre_pais} agregado con éxito!")
+    escribir_datos(nuevo_pais, actualizar=False)
+    imprimir_exito(f"{nombre_pais} agregado con éxito.")
 
 def actualizar_pais(datos):
-    pais_buscado = input("Ingrese el nombre del país a actualizar: ").strip()
+    if not datos:
+        imprimir_aviso("No hay países cargados.")
+        return
+
+    pais_buscado = pedir_texto("Ingrese el nombre del país a actualizar: ", "nombre")
     encontrado = False
 
     for pais in datos:
         if pais["nombre"].lower() == pais_buscado.lower():
             encontrado = True
-            # --- Validación población ---
-            while True:
-                try:
-                    poblacion = int(input("Ingrese la nueva población: "))
-                    break
-                except ValueError:
-                    print("Error: La población debe ser un número entero.")    
-            
-            # --- Validación superficie ---
-            while True:
-                try:
-                    superficie = int(input("Ingrese la nueva superficie: "))
-                    break
-                except ValueError:
-                    print("Error: La superficie debe ser un número entero.")
+
+            poblacion = pedir_entero_positivo("Ingrese la nueva población: ", "poblacion")
+            superficie = pedir_entero_positivo("Ingrese la nueva superficie: ", "superficie")
             
             # Modificamos los datos en la lista en memoria
             pais["poblacion"] = str(poblacion)
-            box_superficie = pais["superficie"] = str(superficie)
-            
-            print(f"Datos actualizados en memoria: {pais}")
-            break 
+            pais["superficie"] = str(superficie)
             
     if encontrado:
-        escribir_datos(datos, True)
-        print("¡Archivo CSV actualizado con éxito!")
+        escribir_datos(datos, actualizar=True)
+        imprimir_exito(f"{pais_buscado} actualizado con éxito.")
     else:
-        print("No se encontró el país.")
+        imprimir_error(f"No se encontró ningun país con el nombre '{pais_buscado}'.")
 
 def buscar_pais(datos):
-    pais_buscado = input("Ingrese el nombre del país a buscar: ").strip()
+    if not datos:
+        imprimir_aviso("No hay países cargados.")
+        return
+
+    pais_buscado = pedir_texto("Ingrese el nombre del país a buscar: ", "nombre")
 
     coincidencias  = [pais for pais in datos if pais_buscado.lower() in pais["nombre"].lower()]
 
@@ -114,8 +157,76 @@ def buscar_pais(datos):
         print("Población:", pais_unico["poblacion"])
         print("Superficie:", pais_unico["superficie"])
 
+def filtrar_continente(datos):
+    continentes = []
+    for pais in datos:
+        continentes.add(pais["continente"])
+    set_continentes = list(set(continentes))
+
+    while True:
+        print("\n--- CONTINENTES DISPONIBLES ---")
+        
+        for i, nombre in enumerate(set_continentes, start=1):
+            print(f"{i}. {nombre}")
+        
+        while True:
+            try:
+                opcion = int(input("Elegí una opción: "))
+                if 1 <= opcion <= len(set_continentes):
+                    continente_elegido = set_continentes[opcion - 1]
+                    break
+                imprimir_error(f"Opcion fuera de rango. Ingrese un número entre 1 y {len(continentes)}")
+            except ValueError:
+                imprimir_error("Por favor, ingrese un número válido.")
+
+        coincidencias  = [pais for pais in datos if continente_elegido.lower() in pais["continente"].lower()]
+        for pais in coincidencias:
+            print("País:", pais["nombre"], "| Continente:", pais["continente"], "| Población:", pais["poblacion"], "| Superficie:", pais["superficie"])
+        break
+
+def filtrar_por_rango(datos, tipo):
+    min, max = pedir_rango(tipo)
+    print("Rango de población")
+
+    if tipo == "poblacion":
+        coincidencias = [pais for pais in datos if min < int(pais["poblacion"]) < max]
+    elif tipo == "superficie":
+        coincidencias = [pais for pais in datos if min < int(pais["superficie"]) < max]
+    print(f"Países con {tipo} entre {min} y {max}")
+    for pais in coincidencias:
+        print("País:", pais["nombre"], "| Continente:", pais["continente"], "| Población:", pais["poblacion"], "| Superficie:", pais["superficie"])
+
+
+
+def filtrar_paises(datos):
+    while True:
+        print("\n--- FILTROS ---")
+        print("1. Por continente")
+        print("2. Rango de poblacion")
+        print("3. Rango de superficie")
+        print("4. Volver")
+        
+        try:
+            opcion = int(input("Elegi una opción: "))
+        except ValueError:
+            imprimir_error("Por favor, ingresa un número válido.")
+            continue
+
+        if opcion == 1:
+            filtrar_continente(datos)
+            break
+        elif opcion == 2:
+            filtrar_por_rango(datos, tipo="poblacion")
+            break
+        elif opcion == 3:
+            filtrar_por_rango(datos, tipo="superficie")
+            break
+        elif opcion == 4:
+            break
+        else:
+            imprimir_error("Opción incorrecta. Intente de nuevo.")
+
 def menu():
-    # Cargamos los datos una sola vez al iniciar el programa
     datos = leer_datos()
 
     while True:
@@ -123,12 +234,13 @@ def menu():
         print("1. Agregar país")
         print("2. Actualizar país")
         print("3. Buscar país")
-        print("4. Salir")
+        print("4. Filtrar por...")
+        print("5. Salir")
         
         try:
             opcion = int(input("Elegí una opción: "))
         except ValueError:
-            print("Por favor, ingresa un número válido.")
+            imprimir_error("Por favor, ingresa un número válido.")
             continue
 
         if opcion == 1:
@@ -138,6 +250,8 @@ def menu():
         elif opcion == 3:
             buscar_pais(datos)
         elif opcion == 4:
+            filtrar_paises(datos)
+        elif opcion == 5:
             print("Finalizando sistema.")
             break
         else:

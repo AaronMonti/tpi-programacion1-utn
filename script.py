@@ -93,6 +93,27 @@ def actualizar_pais(datos):
     else:
         print("No se encontró el país.")
 
+def buscar_pais(datos):
+    pais_buscado = input("Ingrese el nombre del país a buscar: ").strip()
+
+    coincidencias  = [pais for pais in datos if pais_buscado.lower() in pais["nombre"].lower()]
+
+    if not coincidencias:
+        print("No se encontraron coincidencias.")
+        return
+
+    if len(coincidencias) > 1:
+        print("\nSe encontraron varios países:")
+        for pais in coincidencias:
+            print("País:", pais["nombre"], "| Continente:", pais["continente"], "| Población:", pais["poblacion"], "| Superficie:", pais["superficie"])
+    else:
+        pais_unico = coincidencias[0]
+        print("\nPaís encontrado:")
+        print("Nombre:", pais_unico["nombre"])
+        print("Continente:", pais_unico["continente"])
+        print("Población:", pais_unico["poblacion"])
+        print("Superficie:", pais_unico["superficie"])
+
 def menu():
     # Cargamos los datos una sola vez al iniciar el programa
     datos = leer_datos()
@@ -101,7 +122,8 @@ def menu():
         print("\n--- MENU ---")
         print("1. Agregar país")
         print("2. Actualizar país")
-        print("3. Salir")
+        print("3. Buscar país")
+        print("4. Salir")
         
         try:
             opcion = int(input("Elegí una opción: "))
@@ -114,7 +136,9 @@ def menu():
         elif opcion == 2:
             actualizar_pais(datos)
         elif opcion == 3:
-            print("¡Hasta luego!")
+            buscar_pais(datos)
+        elif opcion == 4:
+            print("Finalizando sistema.")
             break
         else:
             print("Opción incorrecta. Intenta de nuevo.")

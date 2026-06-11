@@ -156,7 +156,106 @@ def buscar_pais(datos):
         print("Continente:", pais_unico["continente"])
         print("Población:", pais_unico["poblacion"])
         print("Superficie:", pais_unico["superficie"])
+def ordenar_nombre(datos):
+    ordenados = sorted(
+        datos,
+        key=lambda pais: pais["nombre"]
+    )
+    for pais in ordenados:
+        print(pais["nombre"])
 
+def ordenar_poblacion(datos):
+    ordenados = sorted(
+        datos,
+        key=lambda pais: int(pais["poblacion"])
+    )
+    for pais in ordenados:
+        print(
+            pais["nombre"],
+            pais["poblacion"]
+        )
+
+def ordenar_superficie(datos):
+    opcion = input(
+        "Ascendente(A) o Descendente(D): "
+    ).upper()
+    reverse = opcion == "D"
+    ordenados = sorted(
+        datos,
+        key=lambda pais: int(pais["superficie"]),
+        reverse=reverse
+    )
+    for pais in ordenados:
+        print(
+            pais["nombre"],
+            pais["superficie"]
+        )
+def menu_ordenamientos(datos):
+    print("\n--- ORDENAR ---")
+    print("1. Nombre")
+    print("2. Población")
+    print("3. Superficie")
+
+    opcion = int(input("Seleccione: "))
+    if opcion == 1:
+        ordenar_nombre(datos)
+    elif opcion == 2:
+        ordenar_poblacion(datos)
+    elif opcion == 3:
+        ordenar_superficie(datos)
+    else:
+        print("Opción inválida")
+
+def mostrar_estadisticas(datos):
+    mayor = max(
+        datos,
+        key=lambda pais: int(pais["poblacion"])
+    )
+
+    menor = min(
+        datos,
+        key=lambda pais: int(pais["poblacion"])
+    )
+
+    promedio_poblacion = sum(
+        int(pais["poblacion"])
+        for pais in datos
+    ) / len(datos)
+
+    promedio_superficie = sum(
+        int(pais["superficie"])
+        for pais in datos
+    ) / len(datos)
+
+    continentes = {}
+
+    for pais in datos:
+        continente = pais["continente"]
+        if continente in continentes:
+            continentes[continente] += 1
+        else:
+            continentes[continente] = 1
+
+    print("\n--- ESTADÍSTICAS ---")
+    print(
+        f"Mayor población: {mayor['nombre']} ({mayor['poblacion']})"
+    )
+    print(
+        f"Menor población: {menor['nombre']} ({menor['poblacion']})"
+    )
+    print(
+        f"Promedio población: {promedio_poblacion:.2f}"
+    )
+    print(
+        f"Promedio superficie: {promedio_superficie:.2f}"
+    )
+    print("\nCantidad por continente:")
+    for continente, cantidad in continentes.items():
+        print(
+            continente,
+            ":",
+            cantidad
+        )
 def filtrar_continente(datos):
     set_continentes = set()
     for pais in datos:
@@ -234,8 +333,10 @@ def menu():
         print("1. Agregar país")
         print("2. Actualizar país")
         print("3. Buscar país")
-        print("4. Filtrar por...")
-        print("5. Salir")
+        print("4. Filtrar países")
+        print("5. Ordenar países")
+        print("6. Estadísticas")
+        print("7. Salir")
         
         try:
             opcion = int(input("Elegí una opción: "))
@@ -250,8 +351,12 @@ def menu():
         elif opcion == 3:
             buscar_pais(datos)
         elif opcion == 4:
-            filtrar_paises(datos)
+            menu_filtros(datos)
         elif opcion == 5:
+            menu_ordenamientos(datos)
+        elif opcion == 6:
+            mostrar_estadisticas(datos)
+        elif opcion == 7:
             print("Finalizando sistema.")
             break
         else:

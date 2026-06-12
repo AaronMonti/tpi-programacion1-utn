@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Este proyecto consiste en una aplicación desarrollada en Python la cual permite gestionar datos de paises utilizando estructuras como listas y diccionarios, almacenadas en un archivo csv
+Este proyecto consiste en una aplicación desarrollada en Python la cual permite gestionar datos de países utilizando estructuras como listas y diccionarios, almacenados en un archivo csv
 
 El sistema permite:
 
@@ -26,18 +26,21 @@ El sistema permite:
 
 ## Integrantes
 
-* Aaron Monti
+* Aaron Montivero
 * Maria Luciana Melana Colavita
 
 ## Instrucciones de ejecución
 
 * Ejecutar:
-python script.py
+python main.py o py main.py
 
 ## Estructura del proyecto
 
-* script.py → código principal
-* paises_datos.csv → base de datos
+* helpers.py → Funciones genéricas de impresión y de pedir input al usuario.
+* datos.py → Lectura y escritura del CSV.
+* funcionalidades.py → Toda la lógica de negocio (agregar, actualizar, buscar, filtrar, ordenar, estadísticas).
+* main.py → Punto de entrada, contiene solo el menú e importa todo lo demás.
+* datos/paises_datos.csv → Dataset
 * README.md → documentación
 
 

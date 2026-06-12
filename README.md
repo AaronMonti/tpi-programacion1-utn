@@ -26,18 +26,18 @@ El sistema permite:
 
 ## Integrantes
 
-* Aaron Monti
+* Aaron Montivero
 * Maria Luciana Melana Colavita
 
 ## Instrucciones de ejecución
 
 * Ejecutar:
-python script.py
+python script.py o py script.py
 
 ## Estructura del proyecto
 
 * script.py → código principal
-* paises_datos.csv → base de datos
+* paises_datos.csv → dataset
 * README.md → documentación
 
 

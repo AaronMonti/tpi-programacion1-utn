@@ -61,8 +61,6 @@ Argentina,45376763,2780400,America
 
 ## Video demostrativo
 
-https://youtu.be/Ztsx9Mx7yiE
+https://www.youtube.com/watch?v=zhRpSP5i_Vo&feature=youtu.be
 
-## Documentación
 
-Agregar aquí el enlace al PDF.
